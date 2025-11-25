@@ -25,10 +25,6 @@ const Footer = () => {
                 <MapPin className="w-4 h-4 text-primary" />
                 Stade Maurice David, Aix-en-Provence
               </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-primary" />
-                benjamin.buleon@gojob.com
-              </li>
             </ul>
           </div>
           

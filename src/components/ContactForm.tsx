@@ -177,16 +177,6 @@ const ContactForm = () => {
               {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
             </Button>
           </form>
-          
-          <div className="mt-8 text-center text-muted-foreground">
-            <p>Vous pouvez aussi nous contacter directement à :</p>
-            <a 
-              href="mailto:benjamin.buleon@gojob.com" 
-              className="text-primary hover:text-secondary transition-colors font-medium"
-            >
-              benjamin.buleon@gojob.com
-            </a>
-          </div>
         </div>
       </div>
     </section>
