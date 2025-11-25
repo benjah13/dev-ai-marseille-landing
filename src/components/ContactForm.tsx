@@ -12,19 +12,78 @@ const ContactForm = () => {
     company: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const mailtoLink = `mailto:benjamin.buleon@gojob.com?subject=Developer AI Xperience - Contact de ${formData.name}&body=${encodeURIComponent(
-      `Nom: ${formData.name}\nEmail: ${formData.email}\nEntreprise: ${formData.company}\n\nMessage:\n${formData.message}`
-    )}`;
-    
-    window.location.href = mailtoLink;
-    
-    toast.success("Ouverture de votre client email...");
-    
-    setFormData({ name: "", email: "", company: "", message: "" });
+    setIsSubmitting(true);
+
+    const webhookUrl = import.meta.env.VITE_SLACK_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      toast.error("Configuration manquante. Veuillez contacter l'administrateur.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const slackMessage = {
+        text: "Nouveau message de contact - Developer AI Xperience",
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: "Nouveau message de contact"
+            }
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*Nom:*\n${formData.name}`
+              },
+              {
+                type: "mrkdwn",
+                text: `*Email:*\n${formData.email}`
+              },
+              {
+                type: "mrkdwn",
+                text: `*Entreprise:*\n${formData.company || "Non renseigné"}`
+              }
+            ]
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*Message:*\n${formData.message}`
+            }
+          }
+        ]
+      };
+
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(slackMessage),
+      });
+
+      if (response.ok) {
+        toast.success("Message envoyé avec succès !");
+        setFormData({ name: "", email: "", company: "", message: "" });
+      } else {
+        throw new Error("Erreur lors de l'envoi");
+      }
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi du message. Veuillez réessayer.");
+      console.error("Error sending to Slack:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -115,8 +174,14 @@ const ContactForm = () => {
               />
             </div>
             
-            <Button type="submit" variant="hero" size="lg" className="w-full">
-              Envoyer le message
+            <Button 
+              type="submit" 
+              variant="hero" 
+              size="lg" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
             </Button>
           </form>
           
