@@ -39,39 +39,44 @@ export function apiPlugin(): Plugin {
             return;
           }
 
-          let body = '';
-          req.on('data', (chunk) => {
-            body += chunk.toString();
+          // Read request body using promise-based approach
+          const body = await new Promise<string>((resolve, reject) => {
+            let data = '';
+            req.on('data', (chunk: Buffer) => {
+              data += chunk.toString('utf-8');
+            });
+            req.on('end', () => {
+              resolve(data);
+            });
+            req.on('error', (err) => {
+              reject(err);
+            });
           });
 
-          req.on('end', async () => {
-            try {
-              const slackMessage = JSON.parse(body);
+          const slackMessage = JSON.parse(body);
 
-              const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(slackMessage),
-              });
-
-              if (response.ok) {
-                res.statusCode = 200;
-                res.end(JSON.stringify({ success: true }));
-              } else {
-                const errorText = await response.text();
-                res.statusCode = response.status;
-                res.end(JSON.stringify({ error: 'Slack API error', details: errorText }));
-              }
-            } catch (error) {
-              res.statusCode = 500;
-              res.end(JSON.stringify({ error: 'Failed to process request', details: error instanceof Error ? error.message : 'Unknown error' }));
-            }
+          const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(slackMessage),
           });
+
+          if (response.ok) {
+            res.statusCode = 200;
+            res.end(JSON.stringify({ success: true }));
+          } else {
+            const errorText = await response.text();
+            res.statusCode = response.status;
+            res.end(JSON.stringify({ error: 'Slack API error', details: errorText }));
+          }
         } catch (error) {
           res.statusCode = 500;
-          res.end(JSON.stringify({ error: 'Server error', details: error instanceof Error ? error.message : 'Unknown error' }));
+          res.end(JSON.stringify({ 
+            error: 'Failed to process request', 
+            details: error instanceof Error ? error.message : 'Unknown error' 
+          }));
         }
       });
     },

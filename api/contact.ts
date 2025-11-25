@@ -1,46 +1,43 @@
-export default async function handler(req: Request): Promise<Response> {
+interface VercelRequest {
+  method?: string;
+  body?: unknown;
+}
+
+interface VercelResponse {
+  setHeader: (name: string, value: string) => void;
+  status: (code: number) => { json: (data: unknown) => void; end: () => void };
+  end: () => void;
+}
+
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      {
-        status: 405,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'application/json');
 
   try {
     const webhookUrl = process.env.VITE_SLACK_WEBHOOK_URL;
 
     if (!webhookUrl) {
-      return new Response(
-        JSON.stringify({ error: 'Webhook URL not configured' }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return res.status(500).json({ error: 'Webhook URL not configured' });
     }
 
-    const slackMessage = await req.json();
+    const slackMessage = req.body;
 
     const slackResponse = await fetch(webhookUrl, {
       method: 'POST',
@@ -51,46 +48,19 @@ export default async function handler(req: Request): Promise<Response> {
     });
 
     if (slackResponse.ok) {
-      return new Response(
-        JSON.stringify({ success: true }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return res.status(200).json({ success: true });
     } else {
       const errorText = await slackResponse.text();
-      return new Response(
-        JSON.stringify({
-          error: 'Slack API error',
-          details: errorText,
-        }),
-        {
-          status: slackResponse.status,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return res.status(slackResponse.status).json({
+        error: 'Slack API error',
+        details: errorText,
+      });
     }
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: 'Failed to process request',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return res.status(500).json({
+      error: 'Failed to process request',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }
 
