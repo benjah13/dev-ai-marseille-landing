@@ -18,14 +18,6 @@ const ContactForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const webhookUrl = import.meta.env.VITE_SLACK_WEBHOOK_URL;
-
-    if (!webhookUrl) {
-      toast.error("Configuration manquante. Veuillez contacter l'administrateur.");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
       const slackMessage = {
         text: "Nouveau message de contact - Developer AI Xperience",
@@ -64,7 +56,7 @@ const ContactForm = () => {
         ]
       };
 
-      const response = await fetch(webhookUrl, {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +68,8 @@ const ContactForm = () => {
         toast.success("Message envoyé avec succès !");
         setFormData({ name: "", email: "", company: "", message: "" });
       } else {
-        throw new Error("Erreur lors de l'envoi");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Erreur lors de l'envoi");
       }
     } catch (error) {
       toast.error("Erreur lors de l'envoi du message. Veuillez réessayer.");
