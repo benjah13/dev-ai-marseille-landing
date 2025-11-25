@@ -19,7 +19,7 @@ const Footer = () => {
             <ul className="space-y-2 text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary" />
-                Mi/Fin Septembre 2025
+                Mi/Fin Septembre 2026
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
@@ -50,7 +50,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-border pt-8 text-center text-muted-foreground">
-          <p>© 2025 Developer AI Xperience Marseille. Tous droits réservés.</p>
+          <p>© 2026 Developer AI Xperience Marseille. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

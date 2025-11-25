@@ -24,7 +24,7 @@ const Hero = () => {
         </h1>
         
         <p className="text-xl md:text-2xl text-muted-foreground mb-4">
-          Marseille 2025
+          Marseille 2026
         </p>
         
         <div className="flex flex-wrap justify-center gap-6 mb-12 text-foreground">

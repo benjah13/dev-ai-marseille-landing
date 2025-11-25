@@ -1,5 +1,5 @@
 import { MapPin, Wifi, Coffee, Utensils } from "lucide-react";
-import venueImage from "@/assets/venue-stage.jpg";
+import venueImage from "@/assets/stade-maurice-david-5.jpg";
 
 const Venue = () => {
   const amenities = [
