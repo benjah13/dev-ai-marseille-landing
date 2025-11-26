@@ -24,13 +24,13 @@ const Hero = () => {
         </h1>
         
         <p className="text-xl md:text-2xl text-muted-foreground mb-4">
-          Marseille 2026
+          Aix-en-Provence - Marseille 2026
         </p>
         
         <div className="flex flex-wrap justify-center gap-6 mb-12 text-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            <span className="font-medium">Mi/Fin Septembre</span>
+            <span className="font-medium">Mi/Fin Septembre 2026</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-secondary" />
@@ -44,6 +44,9 @@ const Hero = () => {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button variant="hero" size="xl" asChild>
+            <a href="#contact">Nous contacter</a>
+          </Button>
+          <Button variant="neon" size="xl" asChild>
             <a href="#contact">Réserver ma place</a>
           </Button>
           <Button variant="neon" size="xl" asChild>

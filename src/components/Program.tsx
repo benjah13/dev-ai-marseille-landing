@@ -31,7 +31,7 @@ const Program = () => {
       topics: [
         "Design systems et UX",
         "Product management tech",
-        "Web3 et technologies émergentes",
+        "Technologies émergentes",
         "Retours d'expérience startup"
       ]
     }
